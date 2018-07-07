@@ -7,27 +7,12 @@ RUN apt-get update && apt-get -y install \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && chmod 777 /opt && chmod a+s /opt
 
-# Install prereqs
-#RUN apt-get update -qq && apt-get install -yq --no-install-recommends \
-#    apt-utils bzip2 ca-certificates curl zip unzip xorg wget xvfb \
-#    && apt-get clean \
-#    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-#    && chmod 777 /opt && chmod a+s /opt
-
-# Install packages required by dax
-#RUN apt-get update && apt-get install -yq \
-#    libfreetype6-dev pkg-config  \
-#    zlib1g-dev libxslt1-dev libxml2-dev \
-#    && apt-get clean \
-#    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-#    && chmod 777 /opt && chmod a+s /opt
-
 # Install dax
-#RUN pip install numpy pandas pyxnat
 RUN pip install dax==0.8.0
-RUN pip install mayavi
+RUN pip install http://github.com/bud42/pyxnat/archive/py3.zip --upgrade
 
 # Install packages needed to make PDF
+RUN pip install mayavi xvfbwrapper
 RUN apt-get update && apt-get install -y \
     ghostscript libgs-dev \
     && apt-get clean \
@@ -78,9 +63,6 @@ ENV PYTHONPATH=""
 ENV FS_LICENSE=/opt/license.txt
 RUN touch /opt/license.txt
 
-RUN pip install xvfbwrapper
-RUN pip install http://github.com/bud42/pyxnat/archive/py3.zip --upgrade
-
 # Make sure other stuff is in path
 COPY src /opt/src/
 
@@ -92,7 +74,4 @@ RUN mkdir /INPUTS /OUTPUTS
 
 # Get the spider code
 COPY spider.py /opt/spider.py
-#COPY run.sh /opt/run.sh
-#RUN chmod +x /opt/run.sh
 ENTRYPOINT ["python", "/opt/spider.py"]
-#ENTRYPOINT /opt/src/run.sh
