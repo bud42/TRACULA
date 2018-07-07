@@ -13,7 +13,6 @@ from scipy import ndimage
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from xvfbwrapper import Xvfb
 
 mlab.options.offscreen = True
 
@@ -238,25 +237,22 @@ class TRACULAQA:
                cpts_txt='',
                proj='UNKNOWN', sess='UNKNOWN', version='UNKNOWN'):
 
-        if True:
-            dest = os.path.join(fs_data, fs_subj)
+        # Figure out the destination based on format of unzipped data
+        if os.path.exists(os.path.join(fs_data, 'DATA', fs_label)):
+            src = os.path.join(fs_data, 'DATA', fs_label)
+        elif os.path.exists(os.path.join(fs_data, 'DATA', fs_subj)):
+            src = os.path.exists(os.path.join(fs_data, 'DATA', fs_subj))
+        elif os.path.exists(os.path.join(fs_data, 'DATA', 'mri')):
+            src = os.path.join(fs_data, 'DATA')
         else:
-            # Figure out the destination based on format of unzipped data
-            if os.path.exists(os.path.join(fs_data, 'DATA', fs_label)):
-                src = os.path.join(fs_data, 'DATA', fs_label)
-            elif os.path.exists(os.path.join(fs_data, 'DATA', fs_subj)):
-                src = os.path.exists(os.path.join(fs_data, 'DATA', fs_subj))
-            elif os.path.exists(os.path.join(fs_data, 'DATA', 'mri')):
-                src = os.path.join(fs_data, 'DATA')
-            else:
-                print('ERROR:failed to download FreeSurfer data.')
-                # TODO: throw an error
-                return
+            print('ERROR:failed to download FreeSurfer data.')
+            # TODO: throw an error
+            return
 
-            # Move it so FS dir name is same as session
-            dest = os.path.join(fs_data, fs_subj)
-            print('Moving ' + src + ' to ' + dest)
-            shutil.move(src, dest)
+        # Move it so FS dir name is same as session
+        dest = os.path.join(fs_data, fs_subj)
+        print('Moving ' + src + ' to ' + dest)
+        shutil.move(src, dest)
 
         trac_dir = os.path.join(out_dir, 'TRACULA')
         if not os.path.exists(trac_dir):
@@ -334,9 +330,8 @@ class TRACULAQA:
             f.write(TRACULA_TEMPLATE.substitute(trac_data))
 
         # Run the TRACULA script
-        if False:
-            os.chmod(trac_filepath, os.stat(trac_filepath)[ST_MODE] | S_IXUSR)
-            os.system(trac_filepath)
+        os.chmod(trac_filepath, os.stat(trac_filepath)[ST_MODE] | S_IXUSR)
+        os.system(trac_filepath)
 
         # stats
         trac_stats = self.parse_trac_stats(trac_dir, fs_subj)
@@ -685,32 +680,31 @@ class TRACULAQA:
 
         fig = plt.figure(0, figsize=(7.5, 9.5))
 
-        with Xvfb() as _xvfb:
-            # Make the first page
-            self.tracula_first_page(
-                fig, f_img_data, t_img_data, trac_stats, proj, sess)
+        # Make the first page
+        self.tracula_first_page(
+            fig, f_img_data, t_img_data, trac_stats, proj, sess)
+        plt.subplots_adjust(wspace=0.01, hspace=0.01)
+        plt.show()
+        tmp_pdf = os.path.join(pdf_dir, '0_' + pdf_name)
+        print('INFO:saving PDF:' + tmp_pdf)
+        fig.savefig(
+            tmp_pdf, transparent=True, orientation='portrait', dpi=SAVE_DPI)
+
+        # Make the invidual tract pages
+        t_count = t_img_data.shape[3]
+        for t_num in range(0, t_count):
+            fig.clf()
+            self.show_tract(fig, f_img_data, t_img_data, t_num)
             plt.subplots_adjust(wspace=0.01, hspace=0.01)
             plt.show()
-            tmp_pdf = os.path.join(pdf_dir, '0_' + pdf_name)
+            tmp_pdf = os.path.join(
+                pdf_dir, 
+                str(t_num + 1) + '_TRACT_' + TRACT_DICT[t_num][0] + '_' + pdf_name)
             print('INFO:saving PDF:' + tmp_pdf)
             fig.savefig(
-                tmp_pdf, transparent=True, orientation='portrait', dpi=SAVE_DPI)
+                tmp_pdf, transparent=False, orientation='portrait', dpi=SAVE_DPI)
 
-            # Make the invidual tract pages
-            t_count = t_img_data.shape[3]
-            for t_num in range(0, t_count):
-                fig.clf()
-                self.show_tract(fig, f_img_data, t_img_data, t_num)
-                plt.subplots_adjust(wspace=0.01, hspace=0.01)
-                plt.show()
-                tmp_pdf = os.path.join(
-                    pdf_dir, 
-                    str(t_num + 1) + '_TRACT_' + TRACT_DICT[t_num][0] + '_' + pdf_name)
-                print('INFO:saving PDF:' + tmp_pdf)
-                fig.savefig(
-                    tmp_pdf, transparent=False, orientation='portrait', dpi=SAVE_DPI)
-
-            plt.close(fig)
+        plt.close(fig)
 
         # Concatenate PDF
         cmd = 'gs -q -sPAPERSIZE=letter -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=' + pdf_path + ' ' + pdf_dir + '/[0-9]*.pdf'

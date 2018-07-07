@@ -32,27 +32,30 @@ outputs = [
 
 code = r"""#PYTHON
 
-import sys
-sys.path.append('${src_path}')
-from traculaqa import TRACULAQA
+from xvfbwrapper import Xvfb
 
-trac = TRACULAQA(
-    '${fs_path}',
-    '${fsl_path}'
-    )
+with Xvfb() as _xvfb:
+    import sys
+    sys.path.append('${src_path}')
+    from traculaqa import TRACULAQA
 
-trac.makeqa(
-    '${fs_data}',
-    '${fs_label}',
-    '${fs_subj}',
-    '${dti_nifti}',
-    '${bval_txt}',
-    '${bvec_txt}',
-    '${temp_dir}',
-    cpts_txt='${cpts_txt}',
-    proj='${proj_label}',
-    sess='${sess_label}'
-    )
+    trac = TRACULAQA(
+        '${fs_path}',
+        '${fsl_path}'
+        )
+
+    trac.makeqa(
+        '${fs_data}',
+        '${fs_label}',
+        '${fs_subj}',
+        '${dti_nifti}',
+        '${bval_txt}',
+        '${bvec_txt}',
+        '${temp_dir}',
+        cpts_txt='${cpts_txt}',
+        proj='${proj_label}',
+        sess='${sess_label}'
+        )
 """
 
 if __name__ == '__main__':
