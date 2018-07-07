@@ -2,7 +2,7 @@ FROM ubuntu:xenial
 
 # Install FSL5 core
 RUN apt-get update && apt-get install -yq --no-install-recommends \
-    wget jq vim \
+    wget \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN wget -O- http://neuro.debian.net/lists/xenial.us-tn.full | tee /etc/apt/sources.list.d/neurodebian.sources.list
