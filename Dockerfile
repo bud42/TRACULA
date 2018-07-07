@@ -70,7 +70,7 @@ RUN apt-get update && apt-get install -yq --no-install-recommends \
 
 # Install packages needed to make PDF
 RUN apt-get update && apt-get install -yq --no-install-recommends \
-    g++ gcc libsm6 libxt6 mayavi2 xvfb zip unzip wget curl \
+    g++ gcc libsm6 libxt6 mayavi2 xvfb zip unzip \
     ghostscript libgs-dev libpng-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
