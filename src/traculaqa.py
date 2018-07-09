@@ -84,7 +84,7 @@ set nstick = 2
 set nburnin = 200
 set nsample = 7500
 set nkeep = 5
-set reinit = 0
+set reinit = 1
 """)
 
 TRACULA_TEMPLATE = Template("""#!/bin/bash
