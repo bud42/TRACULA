@@ -518,11 +518,11 @@ class TRACULAQA:
     def show_footer(self):
         plt.figtext(
             0.02, 0.02,
-            'http://xnat.vanderbilt.edu, ' + os.path.basename(sys.argv[0]),
+            'http://xnat.vanderbilt.edu',
             horizontalalignment='left', fontsize=8)
         plt.figtext(
             0.98, 0.02,
-            'brian.d.boyd@vanderbilt.edu, Vanderbilt University, 2015',
+            'brian.d.boyd@vanderbilt.edu, Vanderbilt University, 2018',
             horizontalalignment='right', fontsize=8)
 
     def show_tract(self, fig, f_data, t_data, t_num):
