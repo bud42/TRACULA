@@ -96,6 +96,9 @@ export PATH=$${FSLDIR}/bin:$${PATH}
 export FREESURFER_HOME=${fs_home}
 source $$FREESURFER_HOME/SetUpFreeSurfer.sh
 
+# Relabel WMH as WM
+mri_binarize --i ${fs_subj_dir}/mri/aparc+aseg.mgz --replace 77 2 --o ${fs_subj_dir}/mri/aparc+aseg.mgz
+
 # Run pre-processing
 trac-all -prep -c ${dmrirc_path}
 
@@ -323,7 +326,8 @@ class TRACULAQA:
             'merged_mgz': merged_mgz,
             'merged_niigz': merged_niigz,
             'trac_path': trac_path,
-            'edits_dir': edits_dir
+            'edits_dir': edits_dir,
+            'fs_subj_dir': os.path.join(fs_data, fs_subj)
         }
 
         with open(trac_filepath, 'w') as f:
