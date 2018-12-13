@@ -78,6 +78,7 @@ RUN pip install xvfbwrapper
 RUN pip install mayavi
 
 # Install dax
+RUN pip install matplotlib==2.2.2
 RUN pip install dax==0.8.0
 
 # Make sure other stuff is in path
